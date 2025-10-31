@@ -1,0 +1,596 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>فاحص الروابط الآمن - URL Checker</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            padding: 50px;
+            max-width: 600px;
+            width: 100%;
+            animation: slideUp 0.5s ease-out;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .logo {
+            font-size: 40px;
+            margin-bottom: 15px;
+        }
+
+        h1 {
+            color: #333;
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .input-group {
+            margin-bottom: 25px;
+        }
+
+        label {
+            display: block;
+            color: #333;
+            font-weight: 600;
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+
+        .input-wrapper {
+            display: flex;
+            gap: 10px;
+        }
+
+        input[type="text"] {
+            flex: 1;
+            padding: 14px 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            font-family: 'Segoe UI', sans-serif;
+        }
+
+        input[type="text"]:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        input[type="text"]::placeholder {
+            color: #999;
+        }
+
+        button {
+            padding: 14px 28px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            min-width: 120px;
+        }
+
+        button:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        button:active:not(:disabled) {
+            transform: translateY(0);
+        }
+
+        button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 0.8s linear infinite;
+            margin-right: 8px;
+            vertical-align: middle;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .result {
+            margin-top: 30px;
+            padding: 0;
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.4s ease, opacity 0.4s ease;
+            opacity: 0;
+        }
+
+        .result.show {
+            max-height: 500px;
+            opacity: 1;
+        }
+
+        .result-card {
+            padding: 20px;
+            border-radius: 12px;
+            border-left: 5px solid;
+            animation: slideIn 0.4s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .result-card.safe {
+            background: #e8f5e9;
+            border-left-color: #4caf50;
+        }
+
+        .result-card.warning {
+            background: #fff3e0;
+            border-left-color: #ff9800;
+        }
+
+        .result-card.danger {
+            background: #ffebee;
+            border-left-color: #f44336;
+        }
+
+        .result-status {
+            display: flex;
+            align-items: center;
+            margin-bottom: 12px;
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .status-icon {
+            font-size: 24px;
+            margin-right: 12px;
+        }
+
+        .result-card.safe .status-icon {
+            color: #4caf50;
+        }
+
+        .result-card.warning .status-icon {
+            color: #ff9800;
+        }
+
+        .result-card.danger .status-icon {
+            color: #f44336;
+        }
+
+        .result-card.safe .result-status {
+            color: #2e7d32;
+        }
+
+        .result-card.warning .result-status {
+            color: #e65100;
+        }
+
+        .result-card.danger .result-status {
+            color: #c62828;
+        }
+
+        .result-description {
+            font-size: 13px;
+            line-height: 1.6;
+            margin-top: 10px;
+        }
+
+        .result-card.safe .result-description {
+            color: #1b5e20;
+        }
+
+        .result-card.warning .result-description {
+            color: #bf360c;
+        }
+
+        .result-card.danger .result-description {
+            color: #b71c1c;
+        }
+
+        .url-display {
+            background: rgba(0, 0, 0, 0.05);
+            padding: 12px;
+            border-radius: 8px;
+            margin-top: 12px;
+            font-size: 12px;
+            word-break: break-all;
+            color: #333;
+            font-family: 'Courier New', monospace;
+        }
+
+        .error-message {
+            background: #ffebee;
+            color: #c62828;
+            padding: 15px;
+            border-radius: 10px;
+            border-left: 4px solid #f44336;
+            margin-top: 15px;
+            font-size: 13px;
+        }
+
+        .info-box {
+            background: #f5f5f5;
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 20px;
+            font-size: 12px;
+            color: #666;
+            line-height: 1.6;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 30px 20px;
+            }
+
+            h1 {
+                font-size: 22px;
+            }
+
+            .input-wrapper {
+                flex-direction: column;
+            }
+
+            button {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="logo">🔍</div>
+            <h1>فاحص الروابط</h1>
+            <p class="subtitle">تحقق من أمان الرابط قبل زيارته</p>
+        </div>
+
+        <form id="urlForm" onsubmit="handleSubmit(event)">
+            <div class="input-group">
+                <label for="urlInput">أدخل الرابط للفحص:</label>
+                <div class="input-wrapper">
+                    <input
+                        type="text"
+                        id="urlInput"
+                        placeholder="https://example.com"
+                        required
+                        aria-label="أدخل الرابط"
+                    >
+                    <button type="submit" id="checkBtn">
+                        <span id="btnText">فحص</span>
+                    </button>
+                </div>
+            </div>
+        </form>
+
+        <div class="result" id="result"></div>
+
+        <div class="info-box">
+            <strong>ℹ️ معلومة:</strong> يتم فحص الرابط من خلال فحوصات أمان متعددة تشمل الكشف عن:
+            <br>• الروابط المريبة والمشبوهة
+            <br>• أنماط الاحتيال الشهيرة
+            <br>• نطاقات الويب الموثوقة
+        </div>
+    </div>
+
+    <script>
+        /**
+         * فئة للتعامل مع فحص الروابط
+         * توفر وظائف آمنة للتحقق من صحة وأمان الروابط
+         */
+        class URLChecker {
+            constructor() {
+                this.suspiciousPatterns = [
+                    /bit\.ly|tinyurl|short\.link|goo\.gl/i,
+                    /password|credit|bank|pay|login|secure-verify/i,
+                    /\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}/,
+                    /admin|config|wp-admin|phpmyadmin/i,
+                    /eval|exec|system|shell_exec/i,
+                ];
+
+                this.safeHosts = [
+                    'google.com', 'youtube.com', 'github.com', 'stackoverflow.com',
+                    'wikipedia.org', 'twitter.com', 'facebook.com', 'linkedin.com',
+                    'amazon.com', 'netflix.com', 'instagram.com', 'reddit.com',
+                    'microsoft.com', 'apple.com', 'adobe.com'
+                ];
+
+                this.warningKeywords = [
+                    'verify', 'confirm', 'update', 'urgent', 'action required',
+                    'click here', 'confirm identity', 'validate account'
+                ];
+            }
+
+            /**
+             * التحقق من صحة الرابط
+             * @param {string} urlString - الرابط المراد فحصه
+             * @returns {boolean} - هل الرابط صحيح
+             */
+            isValidURL(urlString) {
+                try {
+                    new URL(urlString);
+                    return true;
+                } catch (e) {
+                    return false;
+                }
+            }
+
+            /**
+             * تنظيف وتحضير الرابط
+             * @param {string} urlString - الرابط الخام
+             * @returns {string} - الرابط المنظف
+             */
+            normalizeURL(urlString) {
+                let url = urlString.trim();
+                if (!url.startsWith('http://') && !url.startsWith('https://')) {
+                    url = 'https://' + url;
+                }
+                return url;
+            }
+
+            /**
+             * الحصول على مضيف الرابط
+             * @param {string} urlString - الرابط
+             * @returns {string} - اسم المضيف
+             */
+            getHostname(urlString) {
+                try {
+                    return new URL(urlString).hostname.toLowerCase();
+                } catch (e) {
+                    return '';
+                }
+            }
+
+            /**
+             * فحص الرابط وتحديد مستوى الأمان
+             * @param {string} urlString - الرابط المراد فحصه
+             * @returns {object} - نتيجة الفحص
+             */
+            checkURL(urlString) {
+                // تطبيع الرابط
+                const normalizedURL = this.normalizeURL(urlString);
+
+                // التحقق من صحة الرابط
+                if (!this.isValidURL(normalizedURL)) {
+                    return {
+                        status: 'invalid',
+                        level: 'danger',
+                        title: '❌ رابط غير صحيح',
+                        description: 'الرابط الذي أدخلته غير صحيح أو غير كامل. تأكد من صيغة الرابط.',
+                        url: urlString
+                    };
+                }
+
+                const hostname = this.getHostname(normalizedURL);
+                const urlLower = normalizedURL.toLowerCase();
+
+                // فحص الروابط الآمنة المعروفة
+                if (this.safeHosts.some(host => hostname.includes(host))) {
+                    return {
+                        status: 'safe',
+                        level: 'safe',
+                        title: '✅ رابط آمن',
+                        description: 'هذا الرابط من موقع موثوق معروف. يمكنك زيارته بأمان.',
+                        url: normalizedURL
+                    };
+                }
+
+                // فحص الأنماط المريبة
+                for (const pattern of this.suspiciousPatterns) {
+                    if (pattern.test(urlLower)) {
+                        if (pattern.source.includes('bit|tinyurl')) {
+                            return {
+                                status: 'suspicious',
+                                level: 'warning',
+                                title: '⚠️ رابط مقصر',
+                                description: 'الرابط يستخدم خدمة اختصار. قد لا تتمكن من رؤية الوجهة النهائية. توخ الحذر عند النقر عليه.',
+                                url: normalizedURL
+                            };
+                        }
+                        if (pattern.source.includes('password|credit|bank')) {
+                            return {
+                                status: 'dangerous',
+                                level: 'danger',
+                                title: '🚨 رابط خطير جداً',
+                                description: 'يحتوي الرابط على كلمات مفتاحية مريبة تتعلق بالمعلومات الحساسة. قد يكون محاولة احتيال أو تصيد احتيالي.',
+                                url: normalizedURL
+                            };
+                        }
+                        if (pattern.source.includes('\\d{1,3}')) {
+                            return {
+                                status: 'suspicious',
+                                level: 'warning',
+                                title: '⚠️ رابط غير عادي',
+                                description: 'الرابط يستخدم عنوان IP بدلاً من اسم نطاق. قد يكون مريباً، لذا كن حذراً.',
+                                url: normalizedURL
+                            };
+                        }
+                    }
+                }
+
+                // فحص الكلمات المفتاحية المحذرة
+                const hasWarningKeywords = this.warningKeywords.some(keyword =>
+                    urlLower.includes(keyword)
+                );
+
+                if (hasWarningKeywords) {
+                    return {
+                        status: 'suspicious',
+                        level: 'warning',
+                        title: '⚠️ رابط مريب',
+                        description: 'يحتوي الرابط على كلمات مفتاحية قد تشير إلى محاولة احتيال. كن حذراً وتحقق من المصدر.',
+                        url: normalizedURL
+                    };
+                }
+
+                // إذا لم يكن هناك مؤشرات خطرة، الرابط آمن نسبياً
+                return {
+                    status: 'safe',
+                    level: 'safe',
+                    title: '✅ رابط آمن',
+                    description: 'لم يتم العثور على مؤشرات خطرة في هذا الرابط. يبدو أنه آمن للزيارة.',
+                    url: normalizedURL
+                };
+            }
+        }
+
+        // إنشاء مثيل من فاحص الروابط
+        const urlChecker = new URLChecker();
+
+        /**
+         * معالج نموذج الفحص
+         * @param {Event} event - حدث الإرسال
+         */
+        async function handleSubmit(event) {
+            event.preventDefault();
+
+            const urlInput = document.getElementById('urlInput');
+            const checkBtn = document.getElementById('checkBtn');
+            const resultDiv = document.getElementById('result');
+            const btnText = document.getElementById('btnText');
+
+            const url = urlInput.value.trim();
+
+            if (!url) {
+                showError('من فضلك أدخل رابطاً', resultDiv);
+                return;
+            }
+
+            // تفعيل حالة التحميل
+            checkBtn.disabled = true;
+            btnText.innerHTML = '<span class="spinner"></span>جاري الفحص...';
+            resultDiv.classList.remove('show');
+
+            // محاكاة تأخير المعالجة (يمكن استبداله بطلب خادم حقيقي)
+            try {
+                await new Promise(resolve => setTimeout(resolve, 800));
+
+                // فحص الرابط
+                const result = urlChecker.checkURL(url);
+
+                // عرض النتيجة
+                displayResult(result, resultDiv);
+
+                // تنظيف حقل الإدخال (اختياري)
+                // urlInput.value = '';
+            } catch (error) {
+                console.error('خطأ في الفحص:', error);
+                showError('حدث خطأ أثناء فحص الرابط. حاول مرة أخرى.', resultDiv);
+            } finally {
+                // إعادة تعيين زر الفحص
+                checkBtn.disabled = false;
+                btnText.innerHTML = 'فحص';
+            }
+        }
+
+        /**
+         * عرض نتيجة الفحص
+         * @param {object} result - نتيجة الفحص
+         * @param {HTMLElement} resultDiv - عنصر النتيجة
+         */
+        function displayResult(result, resultDiv) {
+            const html = `
+                <div class="result-card ${result.level}">
+                    <div class="result-status">
+                        <span class="status-icon">${result.title.substring(0, 1)}</span>
+                        <span>${result.title.substring(2)}</span>
+                    </div>
+                    <div class="result-description">
+                        ${result.description}
+                    </div>
+                    <div class="url-display">
+                        ${escapeHTML(result.url)}
+                    </div>
+                </div>
+            `;
+
+            resultDiv.innerHTML = html;
+            resultDiv.classList.add('show');
+        }
+
+        /**
+         * عرض رسالة خطأ
+         * @param {string} message - الرسالة
+         * @param {HTMLElement} resultDiv - عنصر النتيجة
+         */
+        function showError(message, resultDiv) {
+            resultDiv.innerHTML = `<div class="error-message">${escapeHTML(message)}</div>`;
+            resultDiv.classList.add('show');
+        }
+
+        /**
+         * تنظيف النصوص لمنع XSS
+         * @param {string} text - النص المراد تنظيفه
+         * @returns {string} - النص الآمن
+         */
+        function escapeHTML(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // التركيز على حقل الإدخال عند تحميل الصفحة
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('urlInput').focus();
+        });
+    </script>
+</body>
+</html>
