@@ -276,6 +276,88 @@
             line-height: 1.6;
         }
 
+        .team-section {
+            margin-top: 40px;
+            padding-top: 30px;
+            border-top: 2px solid #e0e0e0;
+        }
+
+        .team-title {
+            text-align: center;
+            font-size: 16px;
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .team-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 12px;
+            margin-top: 15px;
+        }
+
+        .team-member {
+            background: linear-gradient(135deg, #667eea15 0%, #764ba215 100%);
+            border: 1px solid #667eea30;
+            border-radius: 12px;
+            padding: 12px;
+            text-align: center;
+            transition: all 0.3s ease;
+            animation: fadeInUp 0.5s ease-out forwards;
+        }
+
+        .team-member:nth-child(1) { animation-delay: 0.1s; }
+        .team-member:nth-child(2) { animation-delay: 0.2s; }
+        .team-member:nth-child(3) { animation-delay: 0.3s; }
+        .team-member:nth-child(4) { animation-delay: 0.4s; }
+        .team-member:nth-child(5) { animation-delay: 0.5s; }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .team-member:hover {
+            background: linear-gradient(135deg, #667eea25 0%, #764ba225 100%);
+            border-color: #667eea;
+            transform: translateY(-4px);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.2);
+        }
+
+        .member-avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 700;
+            font-size: 18px;
+            margin: 0 auto 8px;
+        }
+
+        .member-name {
+            font-size: 12px;
+            font-weight: 600;
+            color: #333;
+            line-height: 1.4;
+        }
+
         @media (max-width: 600px) {
             .container {
                 padding: 30px 20px;
@@ -328,6 +410,32 @@
             <br>• الروابط المريبة والمشبوهة
             <br>• أنماط الاحتيال الشهيرة
             <br>• نطاقات الويب الموثوقة
+        </div>
+
+        <div class="team-section">
+            <div class="team-title">👩‍💼 الطالبات</div>
+            <div class="team-grid">
+                <div class="team-member">
+                    <div class="member-avatar">ش</div>
+                    <div class="member-name">شذى محمد<br>الدوسري</div>
+                </div>
+                <div class="team-member">
+                    <div class="member-avatar">ع</div>
+                    <div class="member-name">عهود عبدالله<br>العنزي</div>
+                </div>
+                <div class="team-member">
+                    <div class="member-avatar">ج</div>
+                    <div class="member-name">الجازي فيصل<br>الدوسري</div>
+                </div>
+                <div class="team-member">
+                    <div class="member-avatar">م</div>
+                    <div class="member-name">مها عوض<br>الدلبحي</div>
+                </div>
+                <div class="team-member">
+                    <div class="member-avatar">ا</div>
+                    <div class="member-name">اماني عواد<br>أحمد العنزي</div>
+                </div>
+            </div>
         </div>
     </div>
 
